@@ -23,6 +23,8 @@ export interface PhonicsCategory {
 
 export type ScreenState = 'LOGIN' | 'APP';
 
+export type Theme = 'classic' | 'ocean' | 'sunset';
+
 export interface SyllableResult {
   word: string;
   syllables: string[];

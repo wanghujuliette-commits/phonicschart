@@ -1,5 +1,5 @@
 import React from 'react';
-import { PhonicsCategory } from '../types';
+import { PhonicsCategory, Theme } from '../types';
 import * as Icons from 'lucide-react';
 
 interface SidebarProps {
@@ -7,16 +7,49 @@ interface SidebarProps {
   selectedCategory: string;
   onSelectCategory: (id: string) => void;
   onLogout: () => void;
+  theme: Theme;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   categories, 
   selectedCategory, 
   onSelectCategory,
-  onLogout
+  onLogout,
+  theme
 }) => {
+  const getThemeClasses = () => {
+    switch(theme) {
+      case 'ocean':
+        return {
+          activeBg: 'bg-gradient-to-r from-cyan-50 to-blue-50',
+          activeText: 'text-cyan-800',
+          activeIconBg: 'bg-white text-cyan-600',
+          border: 'border-cyan-100/50',
+          dot: 'bg-cyan-500'
+        };
+      case 'sunset':
+        return {
+          activeBg: 'bg-gradient-to-r from-orange-50 to-rose-50',
+          activeText: 'text-orange-900',
+          activeIconBg: 'bg-white text-orange-600',
+          border: 'border-orange-100/50',
+          dot: 'bg-orange-500'
+        };
+      default:
+        return {
+          activeBg: 'bg-gradient-to-r from-indigo-50 to-purple-50',
+          activeText: 'text-indigo-900',
+          activeIconBg: 'bg-white text-indigo-600',
+          border: 'border-indigo-100/50',
+          dot: 'bg-indigo-500'
+        };
+    }
+  };
+
+  const colors = getThemeClasses();
+
   return (
-    <div className="w-full md:w-72 bg-white border-r border-gray-100 flex flex-col h-full shadow-[2px_0_20px_rgba(0,0,0,0.02)] z-20">
+    <div className="w-full md:w-72 bg-white border-l md:border-l-0 md:border-r border-gray-100 flex flex-col h-full shadow-[2px_0_20px_rgba(0,0,0,0.02)] z-20">
       
       {/* Category List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-1">
@@ -33,21 +66,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => onSelectCategory(cat.id)}
               className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300 group
                 ${isSelected 
-                  ? 'bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-800 shadow-sm border border-indigo-100/50' 
+                  ? `${colors.activeBg} ${colors.activeText} shadow-sm border ${colors.border}` 
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 border border-transparent'
                 }`}
             >
               <div className={`
                 p-2 rounded-lg transition-colors shrink-0
                 ${isSelected 
-                  ? 'bg-white text-indigo-600 shadow-sm' 
+                  ? `${colors.activeIconBg} shadow-sm` 
                   : 'bg-gray-100 text-gray-400 group-hover:bg-gray-200 group-hover:text-gray-600'}
               `}>
                  <IconComponent size={18} />
               </div>
               
               <div className="flex flex-col items-start text-left overflow-hidden">
-                <span className={`font-semibold text-sm truncate w-full ${isSelected ? 'text-indigo-900' : ''}`}>
+                <span className={`font-semibold text-sm truncate w-full`}>
                   {cat.title.split('(')[0]}
                 </span>
                 <span className="text-[10px] opacity-60 font-['Noto_Sans_SC'] truncate w-full">
@@ -56,7 +89,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               
               {isSelected && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></div>
+                <div className={`ml-auto w-1.5 h-1.5 rounded-full ${colors.dot} shrink-0`}></div>
               )}
             </button>
           );
