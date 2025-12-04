@@ -629,6 +629,9 @@ export const PHONICS_DATA: PhonicsCategory[] = [
           { word: "whip", syllables: ["whip"], sentence: "Crack the whip.", highlight: "wh" },
           { word: "whistle", syllables: ["whis", "tle"], sentence: "Blow the whistle.", highlight: "wh" },
           { word: "whisper", syllables: ["whis", "per"], sentence: "Whisper a secret.", highlight: "wh" },
+          { word: "wheat", syllables: ["wheat"], sentence: "Wheat grows in the field.", highlight: "wh" },
+          { word: "whisk", syllables: ["whisk"], sentence: "Whisk the eggs.", highlight: "wh" },
+          { word: "where", syllables: ["where"], sentence: "Where are you going?", highlight: "wh" },
         ]
       },
       {
@@ -643,6 +646,9 @@ export const PHONICS_DATA: PhonicsCategory[] = [
           { word: "rock", syllables: ["rock"], sentence: "A hard rock.", highlight: "ck" },
           { word: "kick", syllables: ["kick"], sentence: "Kick the ball.", highlight: "ck" },
           { word: "black", syllables: ["black"], sentence: "The night is black.", highlight: "ck" },
+          { word: "neck", syllables: ["neck"], sentence: "Wear a necklace on your neck.", highlight: "ck" },
+          { word: "truck", syllables: ["truck"], sentence: "Drive the truck.", highlight: "ck" },
+          { word: "stick", syllables: ["stick"], sentence: "Pick up a stick.", highlight: "ck" },
         ]
       },
       {
@@ -657,6 +663,9 @@ export const PHONICS_DATA: PhonicsCategory[] = [
           { word: "watch", syllables: ["watch"], sentence: "Watch TV.", highlight: "tch" },
           { word: "witch", syllables: ["witch"], sentence: "The witch flies on a broom.", highlight: "tch" },
           { word: "patch", syllables: ["patch"], sentence: "Sew a patch on the pants.", highlight: "tch" },
+          { word: "scratch", syllables: ["scratch"], sentence: "Don't scratch the bite.", highlight: "tch" },
+          { word: "switch", syllables: ["switch"], sentence: "Flip the light switch.", highlight: "tch" },
+          { word: "stretch", syllables: ["stretch"], sentence: "Stretch your arms.", highlight: "tch" },
         ]
       },
       {
