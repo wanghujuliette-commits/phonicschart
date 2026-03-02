@@ -1,56 +1,50 @@
-import { Modality } from "@google/genai";
-import { getAI } from "./aiClient";
-
 /**
- * High-quality AI Voice using Gemini TTS
+ * High-reliability TTS Service
+ * Uses a combination of Google Translate TTS (MP3) and Browser Fallback
  */
-const speakWithAI = async (text: string): Promise<boolean> => {
-  try {
-    const ai = getAI();
-    if (!ai) return false;
 
-    console.log(`Requesting AI Voice for: "${text}"`);
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-tts",
-      contents: [{ parts: [{ text: `Say clearly in a British accent: ${text}` }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Kore' }, // Kore is a common high-quality voice
-          },
-        },
-      },
-    });
-
-    const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (base64Audio) {
-      const audioBlob = await fetch(`data:audio/wav;base64,${base64Audio}`).then(res => res.blob());
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
+const speakWithGoogle = (text: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    try {
+      // Using the public Google Translate TTS endpoint (no API key required)
+      // This returns a high-quality MP3 stream
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en-GB&client=tw-ob`;
       
-      return new Promise((resolve) => {
-        audio.onended = () => {
-          URL.revokeObjectURL(audioUrl);
-          resolve(true);
-        };
-        audio.onerror = () => {
-          URL.revokeObjectURL(audioUrl);
-          resolve(false);
-        };
-        audio.play().catch(() => resolve(false));
+      const audio = new Audio(url);
+      
+      // Set a timeout in case it hangs
+      const timeout = setTimeout(() => {
+        audio.pause();
+        resolve(false);
+      }, 3000);
+
+      audio.onplaying = () => {
+        console.log("Google TTS playing...");
+      };
+
+      audio.onended = () => {
+        clearTimeout(timeout);
+        resolve(true);
+      };
+
+      audio.onerror = (e) => {
+        console.warn("Google TTS Error:", e);
+        clearTimeout(timeout);
+        resolve(false);
+      };
+
+      audio.play().catch(err => {
+        console.warn("Audio play blocked or failed:", err);
+        clearTimeout(timeout);
+        resolve(false);
       });
+    } catch (e) {
+      console.error("Google TTS Exception:", e);
+      resolve(false);
     }
-    return false;
-  } catch (error) {
-    console.error("AI Voice Error:", error);
-    return false;
-  }
+  });
 };
 
-/**
- * Browser-native TTS (Fallback)
- */
 const speakWithBrowser = (text: string, rate: number = 0.9): Promise<boolean> => {
   return new Promise((resolve) => {
     if (!window.speechSynthesis) {
@@ -67,26 +61,30 @@ const speakWithBrowser = (text: string, rate: number = 0.9): Promise<boolean> =>
     utterance.onend = () => resolve(true);
     utterance.onerror = () => resolve(false);
 
+    // Try to find a good voice
     const voices = window.speechSynthesis.getVoices();
-    const britishVoice = voices.find(v => 
-      v.lang.includes('en-GB') || v.name.includes('UK') || v.name.includes('British')
+    const targetVoice = voices.find(v => 
+      (v.name.includes('Microsoft') && v.name.includes('Online') && v.lang.includes('en-GB')) ||
+      v.lang.includes('en-GB') || v.name.includes('British')
     );
 
-    if (britishVoice) utterance.voice = britishVoice;
+    if (targetVoice) utterance.voice = targetVoice;
     window.speechSynthesis.speak(utterance);
+    
+    // Safety resolve if it gets stuck
+    setTimeout(() => resolve(true), 2000);
   });
 };
 
-/**
- * Main entry point for speaking text
- */
 export const speakText = async (text: string, rate: number = 0.9) => {
-  // 1. Try high-quality AI voice first
-  const success = await speakWithAI(text);
+  console.log(`Attempting to speak: "${text}"`);
   
-  // 2. Fallback to browser voice if AI fails or key is missing
+  // 1. Try Google Translate TTS first (Most reliable MP3 mode)
+  const success = await speakWithGoogle(text);
+  
+  // 2. Fallback to browser TTS if Google fails
   if (!success) {
-    console.log("Falling back to browser voice...");
+    console.log("Google TTS failed, falling back to browser...");
     await speakWithBrowser(text, rate);
   }
 };
