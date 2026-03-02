@@ -1,10 +1,12 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
 import { SyllableResult } from "../types";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { getAI } from "./aiClient";
 
 export const analyzeWord = async (word: string): Promise<SyllableResult> => {
   try {
+    const ai = getAI();
+    if (!ai) throw new Error("AI Client not initialized");
+    
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Analyze the English word "${word}". 
@@ -38,12 +40,12 @@ export const analyzeWord = async (word: string): Promise<SyllableResult> => {
     }
     throw new Error("No response from AI");
   } catch (error) {
-    console.error("Error analyzing word:", error);
+    console.error("AI Analysis Error:", error);
     // Fallback for demo if API fails or key missing
     return {
       word: word,
       syllables: [word],
-      phonicsType: "Unknown",
+      phonicsType: "AI Analysis (Offline)",
       highlight: ""
     };
   }

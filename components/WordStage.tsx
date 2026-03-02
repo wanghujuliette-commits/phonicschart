@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PhonicsWord, Theme } from '../types';
 import { Volume2, Sparkles } from 'lucide-react';
 import { speakText } from '../services/ttsService';
@@ -11,6 +11,19 @@ interface WordStageProps {
 }
 
 export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynamic = false, theme }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  
+  const handleSpeak = async (text: string, rate?: number) => {
+    setIsSpeaking(true);
+    try {
+      await speakText(text, rate);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSpeaking(false);
+    }
+  };
+
   // Theme color mapping for internal components
   const getThemeClasses = () => {
     switch(theme) {
@@ -97,7 +110,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
           transition-all duration-150 ease-out select-none
           mx-1.5 my-2
         `}
-        onClick={() => speakText(syllable)}
+        onClick={() => handleSpeak(syllable)}
       >
         {highlightText(syllable, wordData.highlight)}
         
@@ -149,11 +162,11 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
             </div>
           </div>
           <button 
-            onClick={() => speakText(wordData.word)}
-            className={`p-4 bg-white rounded-2xl text-gray-600 shadow-lg border hover:scale-105 active:scale-95 transition-all group ${colors.buttonShadow} ${colors.buttonBorder}`}
+            onClick={() => handleSpeak(wordData.word)}
+            className={`p-4 bg-white rounded-2xl text-gray-600 shadow-lg border hover:scale-105 active:scale-95 transition-all group ${colors.buttonShadow} ${colors.buttonBorder} ${isSpeaking ? 'ring-2 ring-indigo-400' : ''}`}
             title="Listen to word"
           >
-            <Volume2 size={28} className={`fill-current ${colors.buttonHover} transition-colors`} />
+            <Volume2 size={28} className={`fill-current ${colors.buttonHover} transition-colors ${isSpeaking ? 'animate-pulse text-indigo-500' : ''}`} />
           </button>
         </div>
 
@@ -181,7 +194,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
           {!isDynamic && wordData.sentence && (
              <div 
                 className={`w-full max-w-3xl mt-2 p-8 md:p-10 bg-gradient-to-br from-gray-50 to-white rounded-3xl border border-gray-100 relative group cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${colors.buttonShadow}`}
-                onClick={() => speakText(wordData.sentence, 0.85)}
+                onClick={() => handleSpeak(wordData.sentence, 0.85)}
              >
                 <div className={`absolute top-5 right-5 text-gray-300 ${colors.buttonHover} transition-colors bg-white p-2 rounded-full shadow-sm`}>
                     <Volume2 size={22} />
