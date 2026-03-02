@@ -1,12 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { SyllableResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const analyzeWord = async (word: string): Promise<SyllableResult> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash-preview",
       contents: `Analyze the English word "${word}". 
       1. Break it into syllables.
       2. Identify the main phonics pattern or vowel sound (e.g., "Short a", "ai digraph", "tion suffix").
