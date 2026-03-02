@@ -6,11 +6,10 @@ import { speakText } from '../services/ttsService';
 interface WordStageProps {
   wordData: PhonicsWord | null;
   pattern: string;
-  isDynamic?: boolean;
   theme: Theme;
 }
 
-export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynamic = false, theme }) => {
+export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, theme }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   
   const handleSpeak = async (text: string, rate?: number) => {
@@ -33,7 +32,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
           accentText: 'text-amber-500',
           accentBg: 'bg-amber-50',
           accentBorder: 'border-amber-100',
-          badge: isDynamic ? 'bg-blue-100 text-blue-600' : 'bg-cyan-50 text-cyan-600',
+          badge: 'bg-cyan-50 text-cyan-600',
           buttonShadow: 'shadow-cyan-100',
           buttonBorder: 'border-cyan-50',
           buttonHover: 'group-hover:text-cyan-500',
@@ -48,7 +47,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
           accentText: 'text-purple-600',
           accentBg: 'bg-purple-50',
           accentBorder: 'border-purple-100',
-          badge: isDynamic ? 'bg-rose-100 text-rose-600' : 'bg-orange-50 text-orange-600',
+          badge: 'bg-orange-50 text-orange-600',
           buttonShadow: 'shadow-orange-100',
           buttonBorder: 'border-orange-50',
           buttonHover: 'group-hover:text-orange-500',
@@ -63,7 +62,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
           accentText: 'text-rose-500',
           accentBg: 'bg-rose-50',
           accentBorder: 'border-rose-100',
-          badge: isDynamic ? 'bg-purple-100 text-purple-600' : 'bg-indigo-50 text-indigo-600',
+          badge: 'bg-indigo-50 text-indigo-600',
           buttonShadow: 'shadow-indigo-100',
           buttonBorder: 'border-indigo-50',
           buttonHover: 'group-hover:text-indigo-500',
@@ -152,7 +151,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
         <div className="relative z-10 p-8 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className={`px-4 py-1.5 ${colors.badge} text-xs font-bold rounded-full uppercase tracking-widest shadow-sm transition-colors`}>
-              {isDynamic ? 'AI Analysis' : 'Pattern'}
+              Pattern
             </span>
             <div className="flex items-baseline gap-2">
                 <span className="text-gray-400 text-sm font-medium uppercase tracking-wider hidden sm:inline">Focus Sound:</span>
@@ -191,7 +190,7 @@ export const WordStage: React.FC<WordStageProps> = ({ wordData, pattern, isDynam
           </div>
 
           {/* Sentence Section */}
-          {!isDynamic && wordData.sentence && (
+          {wordData.sentence && (
              <div 
                 className={`w-full max-w-3xl mt-2 p-8 md:p-10 bg-gradient-to-br from-gray-50 to-white rounded-3xl border border-gray-100 relative group cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${colors.buttonShadow}`}
                 onClick={() => handleSpeak(wordData.sentence, 0.85)}

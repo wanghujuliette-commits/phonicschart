@@ -6,8 +6,7 @@ import { WordStage } from './components/WordStage';
 import { Logo } from './components/Logo';
 import { PHONICS_DATA } from './constants';
 import { PhonicsCategory, PhonicsPattern, PhonicsWord, ScreenState, Theme } from './types';
-import { analyzeWord } from './services/geminiService';
-import { Search, Sparkles, Menu, X, Palette, Check } from 'lucide-react';
+import { Menu, X, Palette, Check } from 'lucide-react';
 
 const THEMES: Record<Theme, { 
   name: string; 
@@ -56,11 +55,6 @@ const App: React.FC = () => {
   // Mobile menu state
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  // Custom Input State
-  const [customInput, setCustomInput] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [isDynamicMode, setIsDynamicMode] = useState(false);
-
   const activeCategory = PHONICS_DATA.find(c => c.id === activeCategoryId) || PHONICS_DATA[0];
   const themeColors = THEMES[currentTheme];
 
@@ -73,7 +67,6 @@ const App: React.FC = () => {
     if (cat && cat.patterns.length > 0) {
       setActivePattern(cat.patterns[0]);
       setActiveWord(cat.patterns[0].examples[0]);
-      setIsDynamicMode(false);
     }
     setSidebarOpen(false); // Close sidebar on mobile after selection
   };
@@ -81,38 +74,10 @@ const App: React.FC = () => {
   const handlePatternSelect = (pattern: PhonicsPattern) => {
     setActivePattern(pattern);
     setActiveWord(pattern.examples[0]);
-    setIsDynamicMode(false);
   };
 
   const handleExampleSelect = (word: PhonicsWord) => {
     setActiveWord(word);
-    setIsDynamicMode(false);
-  };
-
-  const handleCustomAnalyze = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customInput.trim()) return;
-
-    setIsAnalyzing(true);
-    const result = await analyzeWord(customInput);
-    
-    setActiveWord({
-      word: result.word,
-      syllables: result.syllables,
-      sentence: `Breakdown for: ${result.word}`, 
-      highlight: result.highlight,
-    });
-    
-    setActivePattern({
-      id: 'dynamic',
-      pattern: result.phonicsType, 
-      description: 'AI Analysis',
-      examples: [] 
-    });
-    
-    setIsDynamicMode(true);
-    setIsAnalyzing(false);
-    setCustomInput('');
   };
 
   if (screen === 'LOGIN') {
@@ -218,7 +183,7 @@ const App: React.FC = () => {
             </div>
             <PhonicsList 
               patterns={activeCategory.patterns}
-              selectedPatternId={isDynamicMode ? null : activePattern.id}
+              selectedPatternId={activePattern.id}
               onSelectPattern={handlePatternSelect}
               theme={currentTheme}
             />
@@ -229,67 +194,29 @@ const App: React.FC = () => {
              <WordStage 
                 wordData={activeWord} 
                 pattern={activePattern.pattern}
-                isDynamic={isDynamicMode} 
                 theme={currentTheme}
              />
           </section>
 
-          {/* 3. Examples List & Custom Input */}
-          <section className="grid md:grid-cols-2 gap-6 pb-12">
+          {/* 3. Examples List */}
+          <section className="pb-12">
             
-            {/* Left: Pre-defined Examples */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                <h4 className="font-bold text-gray-700 mb-4 text-sm uppercase tracking-wide">More Examples</h4>
-               {!isDynamicMode ? (
-                 <div className="flex flex-wrap gap-2">
-                    {activePattern.examples.map((ex, idx) => (
-                      <button 
-                        key={idx}
-                        onClick={() => handleExampleSelect(ex)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border
-                          ${activeWord.word === ex.word 
-                            ? `bg-${themeColors.primary}-50 text-${themeColors.primary}-700 border-${themeColors.primary}-200 shadow-sm transform scale-105` 
-                            : 'bg-gray-50 text-gray-600 border-transparent hover:bg-gray-100'}`}
-                      >
-                        {ex.word}
-                      </button>
-                    ))}
-                 </div>
-               ) : (
-                 <div className="text-gray-400 text-sm italic">
-                   Currently viewing AI analysis. Select a pattern above to return to standard examples.
-                 </div>
-               )}
-            </div>
-
-            {/* Right: Custom Analysis Input */}
-            <div className={`bg-gradient-to-br ${themeColors.gradient} rounded-2xl p-6 text-white shadow-xl shadow-${themeColors.primary}-200/50`}>
-              <h4 className="font-bold mb-2 flex items-center gap-2">
-                <Sparkles size={18} className="text-white/90 animate-pulse" />
-                Analyze Any Word
-              </h4>
-              <p className="text-white/80 text-xs mb-4">Type a word to see its syllable breakdown.</p>
-              
-              <form onSubmit={handleCustomAnalyze} className="relative">
-                <input 
-                  type="text" 
-                  value={customInput}
-                  onChange={(e) => setCustomInput(e.target.value)}
-                  placeholder="e.g., hippopotamus"
-                  className="w-full bg-white/10 border border-white/20 rounded-xl py-3 pl-4 pr-12 text-white placeholder:text-white/50 focus:outline-none focus:bg-white/20 focus:border-white/40 transition-all shadow-inner"
-                />
-                <button 
-                  type="submit"
-                  disabled={isAnalyzing}
-                  className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-white text-${themeColors.primary}-600 rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50`}
-                >
-                  {isAnalyzing ? (
-                    <div className={`w-5 h-5 border-2 border-${themeColors.primary}-600 border-t-transparent rounded-full animate-spin`}></div>
-                  ) : (
-                    <Search size={20} />
-                  )}
-                </button>
-              </form>
+               <div className="flex flex-wrap gap-2">
+                  {activePattern.examples.map((ex, idx) => (
+                    <button 
+                      key={idx}
+                      onClick={() => handleExampleSelect(ex)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border
+                        ${activeWord.word === ex.word 
+                          ? `bg-${themeColors.primary}-50 text-${themeColors.primary}-700 border-${themeColors.primary}-200 shadow-sm transform scale-105` 
+                          : 'bg-gray-50 text-gray-600 border-transparent hover:bg-gray-100'}`}
+                    >
+                      {ex.word}
+                    </button>
+                  ))}
+               </div>
             </div>
 
           </section>
